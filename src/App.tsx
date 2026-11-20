@@ -26,10 +26,12 @@ function AddForm({ dispatch }: { dispatch: Dispatch<Action> }) {
 function FilterBar({
   activeFilter,
   counts,
+  canUndo,
   dispatch,
 }: {
   activeFilter: Filter
   counts: Record<Filter, number>
+  canUndo: boolean
   dispatch: Dispatch<Action>
 }) {
   return (
@@ -56,14 +58,24 @@ function FilterBar({
           </button>
         )
       })}
-      <button
-        type="button"
-        disabled={counts.done === 0}
-        onClick={() => dispatch({ type: 'clearDone' })}
-        style={{ marginLeft: 'auto', padding: '4px 10px' }}
-      >
-        Clear done
-      </button>
+      <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+        <button
+          type="button"
+          disabled={!canUndo}
+          onClick={() => dispatch({ type: 'undo' })}
+          style={{ padding: '4px 10px' }}
+        >
+          Undo
+        </button>
+        <button
+          type="button"
+          disabled={counts.done === 0}
+          onClick={() => dispatch({ type: 'clearDone' })}
+          style={{ padding: '4px 10px' }}
+        >
+          Clear done
+        </button>
+      </div>
     </div>
   )
 }
@@ -95,7 +107,12 @@ export default function App() {
     <main style={{ maxWidth: 560, margin: '24px auto', fontFamily: 'system-ui, sans-serif' }}>
       <h1>Task Manager</h1>
       <AddForm dispatch={dispatch} />
-      <FilterBar activeFilter={state.filter} counts={counts} dispatch={dispatch} />
+      <FilterBar
+        activeFilter={state.filter}
+        counts={counts}
+        canUndo={state.past.length > 0}
+        dispatch={dispatch}
+      />
       <TaskList tasks={visibleTasks} dispatch={dispatch} />
     </main>
   )
